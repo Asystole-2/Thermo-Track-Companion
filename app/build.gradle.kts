@@ -38,11 +38,32 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
-dependencies {
+//dependencies {
+//
+//    implementation(libs.androidx.core.ktx)
+//    implementation(libs.androidx.lifecycle.runtime.ktx)
+//    implementation(libs.androidx.activity.compose)
+//    implementation(platform(libs.androidx.compose.bom))
+//    implementation(libs.androidx.compose.ui)
+//    implementation(libs.androidx.compose.ui.graphics)
+//    implementation(libs.androidx.compose.ui.tooling.preview)
+//    implementation(libs.androidx.compose.material3)
+//    implementation(libs.androidx.room.common.jvm)
+//    testImplementation(libs.junit)
+//    androidTestImplementation(libs.androidx.junit)
+//    androidTestImplementation(libs.androidx.espresso.core)
+//    androidTestImplementation(platform(libs.androidx.compose.bom))
+//    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+//    debugImplementation(libs.androidx.compose.ui.tooling)
+//    debugImplementation(libs.androidx.compose.ui.test.manifest)
+//}
 
+dependencies {
+    // Standard Compose Dependencies
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -51,12 +72,35 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
-    debugImplementation(libs.androidx.compose.ui.tooling)
-    debugImplementation(libs.androidx.compose.ui.test.manifest)
-    // classpath(...) line REMOVED
+
+    // Logging (Timber)
+    implementation("com.jakewharton.timber:timber:5.0.1") //  Logging
+
+    // Navigation Compose
+    implementation("androidx.navigation:navigation-compose:2.7.5") //  Navigation
+
+    // Architecture Components (ViewModel extensions)
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0")
+
+    // Retrofit for Networking
+    implementation("com.squareup.retrofit2:retrofit:2.9.0") //  Getting Data from Internet
+    implementation("com.squareup.retrofit2:converter-moshi:2.9.0")
+    implementation("com.squareup.moshi:moshi-kotlin:1.14.0")
+
+    // Coil for Image Loading
+    implementation("io.coil-kt:coil-compose:2.5.0") // Load and Display Images
+
+    // Room for Database Persistence
+    implementation("androidx.room:room-runtime:2.6.1") //  Room DB
+    ksp("androidx.room:room-compiler:2.6.1")
+    implementation("androidx.room:room-ktx:2.6.1")
+
+    // DataStore for Preferences
+    implementation("androidx.datastore:datastore-preferences:1.0.0") //  DataStore
+
+    // Compose Animation
+    implementation("androidx.compose.animation:animation:1.6.0") // Animation
+
+
 }
