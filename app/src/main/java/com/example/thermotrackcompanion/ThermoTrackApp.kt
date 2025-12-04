@@ -5,14 +5,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.thermotrack.companion.data.AppContainer
-import com.thermotrack.companion.ui.screens.AlertsHistoryScreen
-import com.thermotrack.companion.ui.screens.HardwareGuideScreen
-import com.thermotrack.companion.ui.screens.HomeScreen
-import com.thermotrack.companion.ui.screens.SettingsScreen
-import com.thermotrack.companion.viewmodel.AlertsViewModel
-import com.thermotrack.companion.viewmodel.HomeViewModel
-import com.thermotrack.companion.viewmodel.SettingsViewModel
+import com.example.thermotrackcompanion.data.AppContainer
+import com.example.thermotrackcompanion.ui.screens.AlertsHistoryScreen
+import com.example.thermotrackcompanion.ui.screens.HardwareGuideScreen
+import com.example.thermotrackcompanion.ui.screens.HomeScreen
+import com.example.thermotrackcompanion.ui.screens.SettingsScreen
+import com.example.thermotrackcompanion.viewmodel.AlertsViewModel
+import com.example.thermotrackcompanion.viewmodel.HomeViewModel
+import com.example.thermotrackcompanion.viewmodel.SettingsViewModel
 
 object Destinations {
     const val HOME = "home"
@@ -25,12 +25,13 @@ object Destinations {
 fun ThermoTrackApp(container: AppContainer) {
     val navController = rememberNavController()
 
-    // Base ViewModel Factories (for ViewModels that need the repository)
+    // Initialize ViewModels using the provided factory that needs the repository
     val homeViewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory(container.repository))
     val alertsViewModel: AlertsViewModel = viewModel(factory = AlertsViewModel.Factory(container.repository))
     val settingsViewModel: SettingsViewModel = viewModel(factory = SettingsViewModel.Factory(container.repository))
 
     NavHost(navController = navController, startDestination = Destinations.HOME) {
+        // Define navigation for each screen
         composable(Destinations.HOME) {
             HomeScreen(
                 viewModel = homeViewModel,

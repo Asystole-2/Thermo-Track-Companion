@@ -1,5 +1,4 @@
-package com.example.thermotrackcompanion
-
+package com.example.thermotrackcompanion // CORRECTED: Your confirmed root package
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -7,9 +6,11 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import com.thermotrack.companion.data.AppContainer
-import com.thermotrack.companion.data.DefaultAppContainer
-import com.thermotrack.companion.ui.theme.ThermoTrackCompanionTheme
+import com.example.thermotrackcompanion.data.AppContainer // CORRECTED Import
+import com.example.thermotrackcompanion.data.DefaultAppContainer // CORRECTED Import
+import com.example.thermotrackcompanion.ui.theme.ThermoTrackCompanionTheme
+import com.example.thermotrackcompanion.NotificationHelper // CORRECTED Import
+import com.example.thermotrackcompanion.ThermoTrackApp // CORRECTED Import
 import timber.log.Timber
 
 class MainActivity : ComponentActivity() {
@@ -24,6 +25,7 @@ class MainActivity : ComponentActivity() {
         }
 
         container = DefaultAppContainer(this)
+        NotificationHelper.createNotificationChannel(this)
 
         setContent {
             ThermoTrackCompanionTheme {
@@ -34,4 +36,4 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-}}
+}
