@@ -1,6 +1,7 @@
 package com.example.thermotrackcompanion
 
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -10,6 +11,7 @@ import com.example.thermotrackcompanion.ui.screens.AlertsHistoryScreen
 import com.example.thermotrackcompanion.ui.screens.HardwareGuideScreen
 import com.example.thermotrackcompanion.ui.screens.HomeScreen
 import com.example.thermotrackcompanion.ui.screens.SettingsScreen
+import com.example.thermotrackcompanion.ui.theme.ThermoTrackCompanionTheme
 import com.example.thermotrackcompanion.viewmodel.AlertsViewModel
 import com.example.thermotrackcompanion.viewmodel.HomeViewModel
 import com.example.thermotrackcompanion.viewmodel.SettingsViewModel
@@ -29,34 +31,37 @@ fun ThermoTrackApp(container: AppContainer) {
     val homeViewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory(container.repository))
     val alertsViewModel: AlertsViewModel = viewModel(factory = AlertsViewModel.Factory(container.repository))
     val settingsViewModel: SettingsViewModel = viewModel(factory = SettingsViewModel.Factory(container.repository))
+    val darkModeEnabled = settingsViewModel.darkMode.collectAsStateWithLifecycle(initialValue = false).value
 
-    NavHost(navController = navController, startDestination = Destinations.HOME) {
-        // Define navigation for each screen
-        composable(Destinations.HOME) {
-            HomeScreen(
-                viewModel = homeViewModel,
-                onNavigateToSettings = { navController.navigate(Destinations.SETTINGS) },
-                onNavigateToGuide = { navController.navigate(Destinations.GUIDE) },
-                onNavigateToAlerts = { navController.navigate(Destinations.ALERTS) }
-            )
-        }
-        composable(Destinations.GUIDE) {
-            HardwareGuideScreen(
-                viewModel = homeViewModel,
-                onNavigateBack = { navController.popBackStack() }
-            )
-        }
-        composable(Destinations.ALERTS) {
-            AlertsHistoryScreen(
-                viewModel = alertsViewModel,
-                onNavigateBack = { navController.popBackStack() }
-            )
-        }
-        composable(Destinations.SETTINGS) {
-            SettingsScreen(
-                viewModel = settingsViewModel,
-                onNavigateBack = { navController.popBackStack() }
-            )
+    ThermoTrackCompanionTheme(darkTheme = darkModeEnabled) {
+        NavHost(navController = navController, startDestination = Destinations.HOME) {
+            // Define navigation for each screen
+            composable(Destinations.HOME) {
+                HomeScreen(
+                    viewModel = homeViewModel,
+                    onNavigateToSettings = { navController.navigate(Destinations.SETTINGS) },
+                    onNavigateToGuide = { navController.navigate(Destinations.GUIDE) },
+                    onNavigateToAlerts = { navController.navigate(Destinations.ALERTS) }
+                )
+            }
+            composable(Destinations.GUIDE) {
+                HardwareGuideScreen(
+                    viewModel = homeViewModel,
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+            composable(Destinations.ALERTS) {
+                AlertsHistoryScreen(
+                    viewModel = alertsViewModel,
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+            composable(Destinations.SETTINGS) {
+                SettingsScreen(
+                    viewModel = settingsViewModel,
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
         }
     }
 }

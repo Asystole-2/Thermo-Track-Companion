@@ -20,4 +20,7 @@ interface ThermoTrackRepository {
     fun getAllAlerts(): Flow<List<AlertEntity>>
     fun searchAlerts(query: String): Flow<List<AlertEntity>>
     suspend fun insertAlert(alert: AlertEntity)
+    // dark mode
+    fun getDarkMode(): Flow<Boolean>
+    suspend fun saveDarkMode(enabled: Boolean)
 }

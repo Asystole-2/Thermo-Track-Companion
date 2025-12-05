@@ -35,4 +35,12 @@ class DefaultThermoTrackRepository(
     override fun getAllAlerts(): Flow<List<AlertEntity>> = alertDao.getAllAlerts()
     override fun searchAlerts(query: String): Flow<List<AlertEntity>> = alertDao.searchAlerts(query)
     override suspend fun insertAlert(alert: AlertEntity) = alertDao.insert(alert)
+
+    //dark mode
+    override fun getDarkMode(): Flow<Boolean> =
+        dataStoreManager.darkMode
+
+    override suspend fun saveDarkMode(enabled: Boolean) =
+        dataStoreManager.saveDarkMode(enabled)
+
 }

@@ -28,6 +28,19 @@ class SettingsViewModel(private val repository: ThermoTrackRepository) : ViewMod
         }
     }
 
+    val darkMode: StateFlow<Boolean> = repository.getDarkMode().stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5_000),
+        false
+    )
+
+    fun saveDarkMode(enabled: Boolean) {
+        viewModelScope.launch {
+            repository.saveDarkMode(enabled)
+        }
+    }
+
+
     companion object {
         val Factory: (ThermoTrackRepository) -> ViewModelProvider.Factory = { repository ->
             viewModelFactory {

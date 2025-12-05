@@ -56,7 +56,24 @@ fun SettingsScreen(
             // Placeholder for future settings (e.g., Alert Thresholds)
             Text("Alert Thresholds (Future Feature)", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Text("The mobile app could eventually allow the user to set motion/temperature limits.", style = MaterialTheme.typography.bodySmall)
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("Dark Mode", style = MaterialTheme.typography.titleMedium)
+                val darkMode by viewModel.darkMode.collectAsStateWithLifecycle()
+
+                Switch(
+                    checked = darkMode,
+                    onCheckedChange = { viewModel.saveDarkMode(it) }
+                )
+            }
+            Divider(Modifier.padding(vertical = 8.dp))
+
         }
+
     }
 }
 
