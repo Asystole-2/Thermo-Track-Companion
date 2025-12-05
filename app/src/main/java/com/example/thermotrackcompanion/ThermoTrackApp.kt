@@ -1,6 +1,7 @@
 package com.example.thermotrackcompanion
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
@@ -8,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.thermotrackcompanion.data.AppContainer
 import com.example.thermotrackcompanion.ui.screens.AlertsHistoryScreen
+import com.example.thermotrackcompanion.ui.screens.AnimatedSplashScreen
 import com.example.thermotrackcompanion.ui.screens.HardwareGuideScreen
 import com.example.thermotrackcompanion.ui.screens.HomeScreen
 import com.example.thermotrackcompanion.ui.screens.SettingsScreen
@@ -15,12 +17,16 @@ import com.example.thermotrackcompanion.ui.theme.ThermoTrackCompanionTheme
 import com.example.thermotrackcompanion.viewmodel.AlertsViewModel
 import com.example.thermotrackcompanion.viewmodel.HomeViewModel
 import com.example.thermotrackcompanion.viewmodel.SettingsViewModel
+import com.example.thermotrackcompanion.viewmodel.SplashViewModel
 
 object Destinations {
     const val HOME = "home"
     const val GUIDE = "guide"
     const val ALERTS = "alerts"
     const val SETTINGS = "settings"
+
+    const val SPLASH = "splash"
+
 }
 
 @Composable
@@ -32,9 +38,26 @@ fun ThermoTrackApp(container: AppContainer) {
     val alertsViewModel: AlertsViewModel = viewModel(factory = AlertsViewModel.Factory(container.repository))
     val settingsViewModel: SettingsViewModel = viewModel(factory = SettingsViewModel.Factory(container.repository))
     val darkModeEnabled = settingsViewModel.darkMode.collectAsStateWithLifecycle(initialValue = false).value
+    val splashViewModel: SplashViewModel = viewModel()
+    val isSplashLoading = splashViewModel.isLoading.collectAsStateWithLifecycle().value
 
     ThermoTrackCompanionTheme(darkTheme = darkModeEnabled) {
-        NavHost(navController = navController, startDestination = Destinations.HOME) {
+        NavHost(navController = navController, startDestination = Destinations.SPLASH) {
+
+            //SPLASH SCREEN
+            composable(Destinations.SPLASH) {
+
+                AnimatedSplashScreen()
+
+                if (!isSplashLoading) {
+                    LaunchedEffect(Unit) {
+                        navController.navigate(Destinations.HOME) {
+                            popUpTo(Destinations.SPLASH) { inclusive = true }
+                        }
+                    }
+                }
+            }
+
             // Define navigation for each screen
             composable(Destinations.HOME) {
                 HomeScreen(

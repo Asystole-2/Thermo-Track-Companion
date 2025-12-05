@@ -12,11 +12,13 @@ import com.example.thermotrackcompanion.ui.theme.ThermoTrackCompanionTheme
 import com.example.thermotrackcompanion.NotificationHelper // CORRECTED Import
 import com.example.thermotrackcompanion.ThermoTrackApp // CORRECTED Import
 import timber.log.Timber
-
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 class MainActivity : ComponentActivity() {
     private lateinit var container: AppContainer
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        //Splash Screen API
+        installSplashScreen()
         super.onCreate(savedInstanceState)
 
         // Initialize Timber for Logging

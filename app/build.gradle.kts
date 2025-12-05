@@ -102,5 +102,8 @@ dependencies {
     // Compose Animation
     implementation("androidx.compose.animation:animation:1.6.0") // Animation
 
+    //splashscreen
+    implementation("androidx.core:core-splashscreen:1.0.1")
+
 
 }
