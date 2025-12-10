@@ -1,9 +1,11 @@
 package com.example.thermotrackcompanion.network
 
+import com.example.thermotrackcompanion.R
 import com.example.thermotrackcompanion.model.HardwareGuide
 import com.example.thermotrackcompanion.model.SensorData
 
 object MockData {
+
     val mockSensorData = SensorData(
         temperatureC = 23.5,
         humidityPercent = 65.2,
@@ -11,11 +13,30 @@ object MockData {
         motionDetected = true
     )
 
-    // Using placeholder images. In a real project, these would be hosted.
     val mockHardwareGuides = listOf(
-        HardwareGuide(1, "Raspberry Pi 4", "The core processing unit for the UDP system. Handles sensor polling and network communication.", "https://picsum.photos/seed/rpi/200"),
-        HardwareGuide(2, "DHT22 Sensor", "Measures temperature and humidity (core component).", "https://picsum.photos/seed/dht22/200"),
-        HardwareGuide(3, "PIR Motion Sensor", "Detects movement in the monitored area (core component).", "https://picsum.photos/seed/pir/200"),
-        HardwareGuide(4, "Fritzing Wiring Diagram", "Refer to the Fritzing files provided in the UDP project for detailed wiring.", "https://picsum.photos/seed/wiring/200")
+        HardwareGuide(
+            id = 1,
+            name = "Raspberry Pi 4",
+            description = "The core processing unit for the UDP system. Handles sensor polling and network communication.",
+            imageRes = R.drawable.pi
+        ),
+        HardwareGuide(
+            id = 2,
+            name = "DHT22 Sensor",
+            description = "Measures temperature and humidity (core component).",
+            imageRes = R.drawable.dht22
+        ),
+        HardwareGuide(
+            id = 3,
+            name = "PIR Motion Sensor",
+            description = "Detects movement in the monitored area (core component).",
+            imageRes = R.drawable.pir
+        ),
+        HardwareGuide(
+            id = 4,
+            name = "Fritzing Wiring Diagram",
+            description = "Refer to the Fritzing files provided in the UDP project for detailed wiring.",
+            imageRes = R.drawable.frit
+        )
     )
 }

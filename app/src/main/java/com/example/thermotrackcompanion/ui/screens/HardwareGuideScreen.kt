@@ -1,5 +1,6 @@
 package com.example.thermotrackcompanion.ui.screens
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -19,6 +20,7 @@ import coil.request.ImageRequest
 import com.example.thermotrackcompanion.model.HardwareGuide
 import com.example.thermotrackcompanion.viewmodel.HomeViewModel
 
+@SuppressLint("UnusedBoxWithConstraintsScope")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HardwareGuideScreen(
@@ -81,16 +83,14 @@ fun HardwareGuideCard(guide: HardwareGuide) {
         Column {
             // Coil for Image Loading (Load and Display Images using Coil)
             AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(guide.imageUrl)
-                    .crossfade(true)
-                    .build(),
+                model = guide.imageRes,
                 contentDescription = guide.name,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(150.dp)
             )
+
             Column(Modifier.padding(16.dp)) {
                 Text(guide.name, style = MaterialTheme.typography.titleLarge)
                 Spacer(Modifier.height(8.dp))

@@ -13,5 +13,5 @@ data class HardwareGuide(
     val id: Int,
     val name: String,
     val description: String,
-    val imageUrl: String // Coil loads this image
+    val imageRes: Int // Coil loads this image
 )
