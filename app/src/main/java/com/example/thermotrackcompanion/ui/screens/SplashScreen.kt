@@ -58,7 +58,7 @@ fun AnimatedSplashScreen() {
 
 
             Image(
-                painter = painterResource(id = R.drawable.thermo_logo),
+                painter = painterResource(id = R.drawable.thermo_logo2),
                 contentDescription = "ThermoTrack Logo",
                 modifier = Modifier
                     .size(180.dp)
@@ -70,7 +70,7 @@ fun AnimatedSplashScreen() {
             Spacer(modifier = Modifier.height(20.dp))
 
             Text(
-                text = "ThermoTrack",
+                text = "Companion",
                 fontSize = 26.sp,
                 style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.alpha(alphaText),

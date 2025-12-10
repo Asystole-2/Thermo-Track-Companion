@@ -105,5 +105,8 @@ dependencies {
     //splashscreen
     implementation("androidx.core:core-splashscreen:1.0.1")
 
+    //Required for Thermostat, WaterDrop,
+    implementation("androidx.compose.material:material-icons-extended")
+
 
 }

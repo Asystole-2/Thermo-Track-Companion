@@ -7,50 +7,54 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.thermotrackcompanion.data.AlertEntity
 import com.example.thermotrackcompanion.data.ThermoTrackRepository
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 data class AlertsUiState(
     val searchQuery: String = "",
     val filteredAlerts: List<AlertEntity> = emptyList()
 )
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class AlertsViewModel(private val repository: ThermoTrackRepository) : ViewModel() {
-
     private val _searchQuery = MutableStateFlow("")
 
-    // All alerts from DB as a flow
-    private val alertsFlow: Flow<List<AlertEntity>> = repository.getAllAlerts()
-
-    // Combine searchQuery + DB alerts into UI state
-    val uiState: StateFlow<AlertsUiState> =
-        combine(_searchQuery, alertsFlow) { query, alerts ->
-
-            val filtered = if (query.isBlank()) {
-                alerts
+    val uiState: StateFlow<AlertsUiState> = _searchQuery
+        .debounce(300) // Debounce search input (performance optimization)
+        .flatMapLatest { query ->
+            // Use search query if present, otherwise fetch all alerts
+            if (query.isBlank()) {
+                repository.getAllAlerts()
             } else {
-                alerts.filter { alert ->
-                    alert.type.contains(query, ignoreCase = true) ||
-                            alert.description.contains(query, ignoreCase = true)
-                }
+                // Pass query with wildcards to the DAO for SQL LIKE search
+                repository.searchAlerts("%$query%")
             }
-
+        }
+        .map { alerts ->
             AlertsUiState(
-                searchQuery = query,
-                filteredAlerts = filtered
+                searchQuery = _searchQuery.value,
+                filteredAlerts = alerts
             )
-        }.stateIn(
-            viewModelScope,
-            SharingStarted.WhileSubscribed(5000),
-            AlertsUiState()
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = AlertsUiState()
         )
 
     fun setSearchQuery(query: String) {
-        Timber.d("Search query updated: $query")
         _searchQuery.value = query
     }
 
+    // Deletes an alert using the repository
+    fun deleteAlert(alert: AlertEntity) {
+        viewModelScope.launch {
+            repository.deleteAlert(alert)
+        }
+    }
+
+    // Function to pre-populate mock data for testing Room DB and search feature
     init {
         viewModelScope.launch {
             repository.insertAlert(AlertEntity(type = "Motion", description = "Motion detected in main area.", timestamp = "2025-12-03 15:30:00"))

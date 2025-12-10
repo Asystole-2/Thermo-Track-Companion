@@ -13,6 +13,7 @@ import com.example.thermotrackcompanion.ui.screens.AnimatedSplashScreen
 import com.example.thermotrackcompanion.ui.screens.HardwareGuideScreen
 import com.example.thermotrackcompanion.ui.screens.HomeScreen
 import com.example.thermotrackcompanion.ui.screens.SettingsScreen
+import com.example.thermotrackcompanion.ui.screens.ThermoTrackDescriptionScreen
 import com.example.thermotrackcompanion.ui.theme.ThermoTrackCompanionTheme
 import com.example.thermotrackcompanion.viewmodel.AlertsViewModel
 import com.example.thermotrackcompanion.viewmodel.HomeViewModel
@@ -25,6 +26,7 @@ object Destinations {
     const val ALERTS = "alerts"
     const val SETTINGS = "settings"
 
+    const val ABOUT = "about"
     const val SPLASH = "splash"
 
 }
@@ -64,7 +66,8 @@ fun ThermoTrackApp(container: AppContainer) {
                     viewModel = homeViewModel,
                     onNavigateToSettings = { navController.navigate(Destinations.SETTINGS) },
                     onNavigateToGuide = { navController.navigate(Destinations.GUIDE) },
-                    onNavigateToAlerts = { navController.navigate(Destinations.ALERTS) }
+                    onNavigateToAlerts = { navController.navigate(Destinations.ALERTS) },
+                    onNavigateToAbout = { navController.navigate(Destinations.ABOUT) }
                 )
             }
             composable(Destinations.GUIDE) {
@@ -82,6 +85,11 @@ fun ThermoTrackApp(container: AppContainer) {
             composable(Destinations.SETTINGS) {
                 SettingsScreen(
                     viewModel = settingsViewModel,
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+            composable(Destinations.ABOUT) { // NEW ROUTE
+                ThermoTrackDescriptionScreen(
                     onNavigateBack = { navController.popBackStack() }
                 )
             }

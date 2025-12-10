@@ -23,4 +23,5 @@ interface ThermoTrackRepository {
     // dark mode
     fun getDarkMode(): Flow<Boolean>
     suspend fun saveDarkMode(enabled: Boolean)
+    suspend fun deleteAlert(alert: AlertEntity)
 }

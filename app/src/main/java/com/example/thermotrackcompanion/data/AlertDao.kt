@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Delete
 import kotlinx.coroutines.flow.Flow
 
 // Data Access Object for Room database operations
@@ -18,4 +19,7 @@ interface AlertDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(alert: AlertEntity)
+
+    @Delete
+    suspend fun delete(alert: AlertEntity)
 }
