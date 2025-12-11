@@ -1,12 +1,16 @@
 package com.example.thermotrackcompanion.ui.screens
 
+import android.content.res.Configuration
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.*
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.CheckCircle
@@ -25,6 +29,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -70,43 +75,50 @@ fun HomeScreen(
     ) { padding ->
         Column(
             modifier = Modifier
+                .verticalScroll(rememberScrollState())  // Make the screen scrollable
                 .padding(padding)
-                .padding(horizontal = 16.dp, vertical = 8.dp)
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Greeting Display
-            WelcomeGreeting()
+            Column(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Greeting Display
+                WelcomeGreeting()
 
-            // Companion App Card (Description & Advertising)
-            CompanionAppCard(onNavigateToAbout)
+                // Companion App Card (Description & Advertising)
+                CompanionAppCard(onNavigateToAbout)
 
-            Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(16.dp))
 
-            // Animated Content for Loading/Success/Error State (Animation)
-            AnimatedContent(targetState = uiState, label = "HomeStateAnimation") { state ->
-                when (state) {
-                    is HomeUiState.Loading -> LoadingState()
-                    is HomeUiState.Success -> {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            SystemStatusBadge(state.systemStatus)
-                            Spacer(Modifier.height(16.dp))
-                            CurrentDataDisplay(state.data, tempUnit)
-                            Spacer(Modifier.height(16.dp))
-                            QuickNavigationRow(onNavigateToGuide, onNavigateToAlerts)
+                // Animated Content for Loading/Success/Error State (Animation)
+                AnimatedContent(targetState = uiState, label = "HomeStateAnimation") { state ->
+                    when (state) {
+                        is HomeUiState.Loading -> LoadingState()
+                        is HomeUiState.Success -> {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                SystemStatusBadge(state.systemStatus)
+                                Spacer(Modifier.height(16.dp))
+                                CurrentDataDisplay(state.data, tempUnit)
+                                Spacer(Modifier.height(16.dp))
+                                QuickNavigationRow(onNavigateToGuide, onNavigateToAlerts)
+                            }
                         }
+                        is HomeUiState.Error -> ErrorState(state.message, onRetry = viewModel::fetchRealtimeData)
                     }
-                    is HomeUiState.Error -> ErrorState(state.message, onRetry = viewModel::fetchRealtimeData)
                 }
-            }
 
-            Spacer(Modifier.height(16.dp))
-            // Display Unit Preference (DataStore Integration Display)
-            Text(
-                text = "Unit Preference: $tempUnit",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+                Spacer(Modifier.height(16.dp))
+                // Display Unit Preference (DataStore Integration Display)
+                Text(
+                    text = "Unit Preference: $tempUnit",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
     }
 }
@@ -178,6 +190,7 @@ fun CompanionAppCard(onNavigateToAbout: () -> Unit) {
         }
     }
 }
+
 @Composable
 fun SystemStatusBadge(status: SystemStatus) {
     Card(
@@ -203,69 +216,147 @@ fun SystemStatusBadge(status: SystemStatus) {
     }
 }
 
-
 // Enhanced Data Display with Gauges and Cards
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CurrentDataDisplay(data: SensorData, unit: String) {
     val tempC = data.temperatureC
-
-    // Convert temperature for display and gauge max based on user unit
     val tempMax = if (unit == "F") 100f else 40f
     val tempCurrent = if (unit == "F") (tempC * 9 / 5 + 32).toFloat() else tempC.toFloat()
-
     val currentHumidity = data.humidityPercent.toFloat()
 
-    Card(Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+    // Use LocalConfiguration for screen size detection
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp
+    val isWideScreen = screenWidth >= 600
 
-            Text("Current Readings", style = MaterialTheme.typography.headlineSmall)
-            Spacer(Modifier.height(24.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceAround
+    // Different styling for wide screens vs compact screens
+    if (isWideScreen) {
+        // WIDE SCREEN MODE: Circular card with side-by-side gauges
+        Card(
+            shape = CircleShape,
+            modifier = Modifier
+                .size(420.dp)
+                .wrapContentWidth(Alignment.CenterHorizontally),
+            elevation = CardDefaults.cardElevation(defaultElevation = 12.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
-                // Temperature Visual (Gauge)
-                GaugeIndicator(
-                    value = tempCurrent,
-                    maxValue = tempMax,
-                    label = "Temperature",
-                    unitLabel = "°$unit",
-                    icon = Icons.Filled.Thermostat, // Resolved
-                    modifier = Modifier.weight(1f).aspectRatio(1f)
+                Text(
+                    text = "Current Readings",
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 24.dp)
                 )
 
-                Spacer(Modifier.width(16.dp))
+                // Side-by-side gauges in the center
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    CircularGaugeIndicator(
+                        value = tempCurrent,
+                        maxValue = tempMax,
+                        label = "Temperature",
+                        unitLabel = "°$unit",
+                        icon = Icons.Filled.Thermostat,
+                        modifier = Modifier.size(140.dp)
+                    )
 
-                // Humidity Visual (Gauge)
-                GaugeIndicator(
-                    value = currentHumidity,
-                    maxValue = 100f,
-                    label = "Humidity",
-                    unitLabel = "%",
-                    icon = Icons.Filled.WaterDrop, // Resolved
-                    modifier = Modifier.weight(1f).aspectRatio(1f)
+                    CircularGaugeIndicator(
+                        value = currentHumidity,
+                        maxValue = 100f,
+                        label = "Humidity",
+                        unitLabel = "%",
+                        icon = Icons.Filled.WaterDrop,
+                        modifier = Modifier.size(140.dp)
+                    )
+                }
+
+                Spacer(Modifier.height(24.dp))
+                Text(
+                    text = "Motion: Clear",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.tertiary
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = "Updated: ${data.lastUpdated}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
+        }
+    } else {
+        // COMPACT SCREEN MODE: Original rectangular card, vertical stacking
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Current Readings",
+                    style = MaterialTheme.typography.titleLarge
+                )
+                Spacer(Modifier.height(16.dp))
 
-            Spacer(Modifier.height(16.dp))
-            // Motion Status (Fixed to Clear as per API simplification)
-            Text(
-                "Motion Status: Clear",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.tertiary
-            )
-            Spacer(Modifier.height(8.dp))
-            Text("Last Update: ${data.lastUpdated}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                // Vertical stacking for compact screens
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    CompactGaugeIndicator(
+                        value = tempCurrent,
+                        maxValue = tempMax,
+                        label = "Temperature",
+                        unitLabel = "°$unit",
+                        icon = Icons.Filled.Thermostat,
+                        modifier = Modifier
+                            .fillMaxWidth(0.7f)
+                            .aspectRatio(1f)
+                    )
+                    Spacer(Modifier.height(16.dp))
+                    CompactGaugeIndicator(
+                        value = currentHumidity,
+                        maxValue = 100f,
+                        label = "Humidity",
+                        unitLabel = "%",
+                        icon = Icons.Filled.WaterDrop,
+                        modifier = Modifier
+                            .fillMaxWidth(0.7f)
+                            .aspectRatio(1f)
+                    )
+                }
+
+                Spacer(Modifier.height(16.dp))
+                Text(
+                    text = "Motion: Clear",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.tertiary
+                )
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    text = "Updated: ${data.lastUpdated}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
     }
 }
 
-// Gauge Indicator (Visuals/Animation)
+// Circular Gauge Indicator for wide screen mode
 @Composable
-
-fun GaugeIndicator(
+fun CircularGaugeIndicator(
     value: Float,
     maxValue: Float,
     label: String,
@@ -273,75 +364,168 @@ fun GaugeIndicator(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     modifier: Modifier = Modifier
 ) {
-    // Animation for sweep angle
-    val sweepAngle = animateFloatAsState(targetValue = (value / maxValue).coerceIn(0f, 1f) * 270f, label = "gaugeAnimation").value
-    val backgroundColor = MaterialTheme.colorScheme.surfaceVariant
+    val sweepAngle = animateFloatAsState(
+        targetValue = (value / maxValue).coerceIn(0f, 1f) * 360f,
+        label = "circularGaugeAnimation"
+    ).value
 
-    // Custom color logic for urgency (matches ViewModel status logic)
+    // Get colors outside of Canvas scope
+    val backgroundColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
     val indicatorColor = when {
-        // Temperature warning zones (approximated for F)
         label == "Temperature" && (value > 25 && unitLabel == "°C" || value > 77 && unitLabel == "°F") -> Color.Red
-        // Humidity exceeding 70% threshold
         label == "Humidity" && value > 70f -> Color(0xFF00BCD4)
         else -> MaterialTheme.colorScheme.primary
     }
 
-    // Ensure value is displayed correctly even if data is null/default (0.0)
     val displayValue = if (value < 0.1f) 0.0f else value
 
     Box(modifier = modifier, contentAlignment = Alignment.Center) {
-        // Background track
-        Canvas(modifier = Modifier.fillMaxSize(0.8f)) {
+        // Background circle
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            drawCircle(
+                color = backgroundColor,
+                radius = size.minDimension / 2.2f
+            )
+        }
+
+        // Progress ring
+        Canvas(modifier = Modifier.fillMaxSize(0.9f)) {
+            drawArc(
+                color = indicatorColor,
+                startAngle = -90f,
+                sweepAngle = sweepAngle,
+                useCenter = false,
+                style = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
+            )
+        }
+
+        // Center content
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                icon,
+                contentDescription = null,
+                tint = indicatorColor,
+                modifier = Modifier.size(28.dp)
+            )
+            Spacer(Modifier.height(4.dp))
+            Text(
+                text = String.format("%.1f", displayValue) + unitLabel,
+                style = MaterialTheme.typography.headlineSmall,
+                color = indicatorColor,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                label,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+// Compact version of GaugeIndicator for compact screens
+@Composable
+fun CompactGaugeIndicator(
+    value: Float,
+    maxValue: Float,
+    label: String,
+    unitLabel: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    modifier: Modifier = Modifier
+) {
+    val sweepAngle = animateFloatAsState(
+        targetValue = (value / maxValue).coerceIn(0f, 1f) * 270f,
+        label = "gaugeAnimation"
+    ).value
+
+    // Get colors outside of Canvas scope
+    val backgroundColor = MaterialTheme.colorScheme.surfaceVariant
+    val indicatorColor = when {
+        label == "Temperature" && (value > 25 && unitLabel == "°C" || value > 77 && unitLabel == "°F") -> Color.Red
+        label == "Humidity" && value > 70f -> Color(0xFF00BCD4)
+        else -> MaterialTheme.colorScheme.primary
+    }
+
+    val displayValue = if (value < 0.1f) 0.0f else value
+
+    Box(modifier = modifier, contentAlignment = Alignment.Center) {
+        Canvas(modifier = Modifier.fillMaxSize(0.75f)) {
             drawArc(
                 color = backgroundColor,
                 startAngle = 135f,
                 sweepAngle = 270f,
                 useCenter = false,
-                style = Stroke(width = 10.dp.toPx(), cap = StrokeCap.Round)
+                style = Stroke(width = 8.dp.toPx(), cap = StrokeCap.Round)
             )
-            // Animated progress arc
             drawArc(
                 color = indicatorColor,
                 startAngle = 135f,
                 sweepAngle = sweepAngle,
                 useCenter = false,
-                style = Stroke(width = 10.dp.toPx(), cap = StrokeCap.Round)
+                style = Stroke(width = 8.dp.toPx(), cap = StrokeCap.Round)
             )
         }
 
-        // Center content
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Icon(icon, contentDescription = null, tint = indicatorColor, modifier = Modifier.size(24.dp))
-            Spacer(Modifier.height(4.dp))
+            Icon(icon, contentDescription = null,
+                tint = indicatorColor,
+                modifier = Modifier.size(20.dp))
+            Spacer(Modifier.height(2.dp))
             Text(
                 text = String.format("%.1f", displayValue) + unitLabel,
-                style = MaterialTheme.typography.titleLarge,
+                style = MaterialTheme.typography.titleMedium,
                 color = indicatorColor
             )
-            Text(label, style = MaterialTheme.typography.bodySmall)
+            Text(label, style = MaterialTheme.typography.labelSmall)
         }
     }
 }
 
 @Composable
 fun QuickNavigationRow(onNavigateToGuide: () -> Unit, onNavigateToAlerts: () -> Unit) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        NavigationButton(
-            title = "Alerts History",
-            onClick = onNavigateToAlerts,
-            icon = Icons.Filled.Notifications,
-            modifier = Modifier.weight(1f)
-        )
-        Spacer(Modifier.width(8.dp))
-        NavigationButton(
-            title = "Hardware Guide",
-            onClick = onNavigateToGuide,
-            icon = Icons.Filled.Info,
-            modifier = Modifier.weight(1f)
-        )
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp
+
+    if (screenWidth < 600) { // Small screen (Z Flip 6) - stack vertically
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            NavigationButton(
+                title = "Alerts History",
+                onClick = onNavigateToAlerts,
+                icon = Icons.Filled.Notifications,
+                modifier = Modifier.fillMaxWidth()
+            )
+            NavigationButton(
+                title = "Hardware Guide",
+                onClick = onNavigateToGuide,
+                icon = Icons.Filled.Info,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    } else { // Larger screen - horizontal layout
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            NavigationButton(
+                title = "Alerts Status",
+                onClick = onNavigateToAlerts,
+                icon = Icons.Filled.Notifications,
+                modifier = Modifier.weight(1f)
+            )
+            Spacer(Modifier.width(12.dp))
+            NavigationButton(
+                title = "Setup Guide",
+                onClick = onNavigateToGuide,
+                icon = Icons.Filled.Info,
+                modifier = Modifier.weight(1f)
+            )
+        }
     }
 }
 

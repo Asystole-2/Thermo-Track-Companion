@@ -108,5 +108,7 @@ dependencies {
     //Required for Thermostat, WaterDrop,
     implementation("androidx.compose.material:material-icons-extended")
 
+    //adjusting window size
+    implementation("androidx.compose.material3:material3-window-size-class:1.2.0")
 
 }
